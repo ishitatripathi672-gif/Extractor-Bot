@@ -35,44 +35,6 @@ bot = Client(
 # Welcome image file path
 WELCOME_IMAGE_PATH = "welcome.jpg"
 
-# Force Subscribe Check Function
-async def is_subscribed(bot, user_id):
-    if not FORCE_SUB_CHANNEL:
-        return True
-    
-    try:
-        member = await bot.get_chat_member(chat_id=FORCE_SUB_CHANNEL, user_id=user_id)
-        if member.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]:
-            return True
-        else:
-            return False
-    except UserNotParticipant:
-        return False
-    except Exception as e:
-        print(f"Error checking subscription: {e}")
-        return False
-
-# Force Subscribe Decorator
-def force_subscribe(func):
-    async def wrapper(bot, message):
-        if FORCE_SUB_CHANNEL:
-            is_sub = await is_subscribed(bot, message.from_user.id)
-            if not is_sub:
-                keyboard = InlineKeyboardMarkup([
-                    [InlineKeyboardButton("🔔 Join Channel", url="https://t.me/TeamLeakage")],
-                    [InlineKeyboardButton("🔄 Refresh", callback_data="refresh_sub")]
-                ])
-                await message.reply_text(
-                    f"<b>🔒 Access Denied!</b>\n\n"
-                    f"You must join our channel to use this bot.\n\n"
-                    f"👇 Click the button below to join:",
-                    reply_markup=keyboard,
-                    parse_mode=ParseMode.HTML
-                )
-                return
-        await func(bot, message)
-    return wrapper
-
 # Enhanced URL validation function
 def is_valid_url(url):
     """Check if URL is valid and accessible"""
@@ -399,3 +361,4 @@ async def upload(bot: Client, m: Message):
 
 if __name__ == "__main__":
     bot.run()
+
